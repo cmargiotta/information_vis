@@ -1,0 +1,10 @@
+body {
+  margin: auto;
+  background-color: #FFB6C1;
+}
+
+.ingredient {
+  fill: #5F9EA0;
+  stroke: #ccc;
+  shape-rendering: crispEdges;
+}
