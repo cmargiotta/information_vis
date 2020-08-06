@@ -1,8 +1,17 @@
-var cakeX = 400
-var cakeY = 400
+var w,h, cakeX, cakeY;
+
+const border = 10
 
 function drawIngre(data)
 {	
+	d3.selectAll("svg").remove()
+	
+	w = window.innerWidth
+	h = window.innerHeight
+
+	cakeX = w/2
+	cakeY = h/2
+	
 	var	radiansCake
 	var rCake
 
@@ -22,8 +31,8 @@ function drawIngre(data)
 	var svg = d3
 		.selectAll("body")
 		.append("svg")
-		.attr("width", window.innerWidth)
-		.attr("height", window.innerWidth)
+		.attr("width", w)
+		.attr("height", h)
 
 	svg
 		.append('image')
@@ -92,13 +101,12 @@ function drawFood(data)
 
 	var radCake = 0
 
-	var rCake = 400
+	var rCake = (w<h ? w : h)/2 - border
 
 	var count = 0
 	
 	var svg = d3
 		.selectAll("svg")
-		console.log(data)
 
 	radiansCake = ( 2 * Math.PI ) / d.length
 	

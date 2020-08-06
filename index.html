@@ -7,19 +7,24 @@
 		<script src="https://d3js.org/d3.v3.min.js"></script>
 		
 		<script src="src.js"></script>
+		
+		<script>
+		function onres() 
+		{
+			d3.json("meal-db/ingredients.json", function(dataIngre) {
+				drawIngre(dataIngre);
+			}); 
+			d3.json("meal-db/meals.json", function(dataFood) {
+				drawFood(dataFood);
+			});
+		}
+		</script>
 	</head>
 	
-	<body>
+	<body onresize="onres()">
 	</body>
 
 	<script>
-		d3.json("meal-db/ingredients.json", function(dataIngre) {
-
-			drawIngre(dataIngre);
-		});
-		d3.json("meal-db/meals.json", function(dataFood) {
-
-			drawFood(dataFood);
-		});
+		onres();
 	</script>
 </html>
