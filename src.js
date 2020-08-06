@@ -96,7 +96,6 @@ function drawIngre(data)
 			graph[data[ing]].links = []
 			
 			node.on('mouseover', function() {
-				console.log(this)
 				for (l of graph[this.attributes.name.nodeValue].links)
 				{
 					l.attr('class', 'linkHover').moveToFront()
