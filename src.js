@@ -124,3 +124,10 @@ function drawFood(data)
 		count++
 	}
 }
+
+function groupByArea(data)
+{
+	return d3.nest()
+		.key(function(d) {return d.area;})
+		.entries(Object.values(data))
+}

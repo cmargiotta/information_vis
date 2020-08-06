@@ -15,7 +15,9 @@
 				drawIngre(dataIngre);
 			}); 
 			d3.json("meal-db/meals.json", function(dataFood) {
-				drawFood(dataFood);
+				groupedData = groupByArea(dataFood);
+				
+				drawFood(dataFood, groupedData);				
 			});
 		}
 		</script>
