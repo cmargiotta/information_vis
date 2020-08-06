@@ -4,21 +4,22 @@
 		<link rel="stylesheet" type="text/css" href="style.css">
 		
 		
-		<script src="https://d3js.org/d3.v3.min.js"></script>
+		<script src="https://d3js.org/d3.v5.min.js"></script>
 		
 		<script src="src.js"></script>
 		
 		<script>
 		function onres() 
 		{
-			d3.json("meal-db/ingredients.json", function(dataIngre) {
+			d3.json("meal-db/ingredients.json").then(function(dataIngre) {
 				drawIngre(dataIngre);
-			}); 
-			d3.json("meal-db/meals.json", function(dataFood) {
-				groupedData = groupByArea(dataFood);
 				
-				drawFood(dataFood, groupedData);				
-			});
+				d3.json("meal-db/meals.json").then(function(dataFood) {
+					groupedData = groupByArea(dataFood);
+					
+					drawFood(groupedData, Object.keys(dataFood).length);				
+				});
+			}); 
 		}
 		</script>
 	</head>

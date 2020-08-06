@@ -8,3 +8,21 @@ body {
   stroke: #ccc;
   shape-rendering: crispEdges;
 }
+
+.link {
+    fill: none;
+    stroke: black;
+    stroke-width: 1;
+    opacity: 0.1;
+}
+
+.linkHover {
+	fill: none;
+    stroke: black;
+	opacity: 1;
+	stroke-width: 3;
+}
+
+.recipe {
+	cursor: default;
+}

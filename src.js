@@ -1,9 +1,24 @@
-var w,h, cakeX, cakeY;
+var w, h, cakeX, cakeY, ingredientNodes, graph;
 
-const border = 10
+const border = 150
+
+d3.selection.prototype.moveToBack = function() {  
+	return this.each(function() { 
+		var firstChild = this.parentNode.firstChild; 
+		if (firstChild) { 
+			this.parentNode.insertBefore(this, firstChild); 
+		} 
+	});
+};
+
+d3.selection.prototype.moveToFront = function() {  
+	return this.each(function(){
+		this.parentNode.appendChild(this);
+	});
+};
 
 function drawIngre(data)
-{	
+{
 	d3.selectAll("svg").remove()
 	
 	w = window.innerWidth
@@ -12,6 +27,9 @@ function drawIngre(data)
 	cakeX = w/2
 	cakeY = h/2
 	
+	ingredientNodes = {}
+	graph = {}
+	
 	var	radiansCake
 	var rCake
 
@@ -19,7 +37,7 @@ function drawIngre(data)
 	var ingreY
 
 	var ingreDim = 5
-	var ingreDist = 20
+	var ingreDist = w/88
 
 	var radCake = 0
 
@@ -56,41 +74,60 @@ function drawIngre(data)
 			radiansCake = ( 2 * Math.PI ) / (data.length - ing) 
 
 		if (cool == 0){
-				radCake += (radiansCake / 2)
-				cool = 1
-			}
-
+			radCake += (radiansCake / 2)
+			cool = 1
+		}
+			
 		while(i < count && ing < data.length) {
 			ingreX = cakeX + rCake * Math.cos( radCake )
 			ingreY = cakeY + rCake * Math.sin( radCake )
 			
-			svg
+			node = svg
 				.append("circle")
 			    .attr("class", "ingredient")
 			    .attr("cx", ingreX)
 			    .attr("cy", ingreY)
 			    .attr("r", ingreDim)
-
+				.attr('name', data[ing])
+			
+			ingredientNodes[data[ing]] = [ingreX, ingreY]
+			graph[data[ing]] = {}
+			graph[data[ing]].node = node
+			graph[data[ing]].links = []
+			
+			node.on('mouseover', function() {
+				console.log(this)
+				for (l of graph[this.attributes.name.nodeValue].links)
+				{
+					l.attr('class', 'linkHover').moveToFront()
+				}
+			})
+			
+			node.on('mouseout', function() {
+				for (l of graph[this.attributes.name.nodeValue].links)
+				{
+					l.attr('class', 'link').moveToBack()
+				}
+			})
+			
 			radCake += radiansCake
 			ing ++
 			i ++
 		}
-		rCake += 30
-		count = ~~(2 * Math.PI * rCake / ingreDist)
-		radiansCake = ( 2 * Math.PI ) / count
+		
+		rCake += h/85
 
 		if (cool == 1){
-				cool = 2
-			}
+			cool = 2
+		}
 		else if (cool == 2){
-				cool = 0
-			}
+			cool = 0
+		}
 	}
 }
 
-function drawFood(data)
-{	
-	var d = Object.keys(data)
+function drawFood(data, len)
+{		
 	var	radiansCake
 	var rCake
 
@@ -99,7 +136,7 @@ function drawFood(data)
 
 	var foodDim = 5
 
-	var radCake = 0
+	var rad = 0
 
 	var rCake = (w<h ? w : h)/2 - border
 
@@ -108,20 +145,71 @@ function drawFood(data)
 	var svg = d3
 		.selectAll("svg")
 
-	radiansCake = ( 2 * Math.PI ) / d.length
+	deltaRad = ( 2 * Math.PI ) / len
 	
-	while (count < d.length) {
-		foodX = cakeX + rCake * Math.cos( radCake )
-		foodY = cakeY + rCake * Math.sin( radCake )
-		svg
-			.append("circle")
-		    .attr("class", "ingredient")
-		    .attr("cx", foodX)
-		    .attr("cy", foodY)
-		    .attr("r", foodDim)
+	var lineGenerator = d3.line();
+	
+	for (c in data) 
+	{
+		for (f of data[c].values) 
+		{
+			var name = f.name
+			
+			if (name.length > 20) 
+			{
+				name = name.substring(0,20) + '...'
+			}
+			
+			foodX = cakeX + rCake * Math.cos( rad )
+			foodY = cakeY + rCake * Math.sin( rad )
+			node = svg.append("text")
+					.attr("y", foodY)
+					.attr("x", foodX)
+					.attr("text-anchor", foodX >= cakeX ? "start" : "end")
+					.attr("transform", "rotate(" + (((foodX <= cakeX ? Math.PI : 0) + rad) * 180/Math.PI) + ',' + foodX + ',' + foodY + ")")
+					.attr("font-size", "75%")
+					.attr("class", "recipe")
+					.text(name)
+			
+			graph[name] = {}		
+			graph[name].fullName = f.name
+			graph[name].node = node
+			graph[name].ingredients = []
+					
+			for (ingredient of f.ingredients)
+			{
+				if (!(ingredient in ingredientNodes))
+				{
+					continue
+				}
+				
+				link = svg.append('path')
+					.datum([[foodX, foodY], ingredientNodes[ingredient]])
+					.attr('d', lineGenerator)
+					.attr('class', 'link')
+					.moveToBack()
+					
+				graph[name].ingredients.push([graph[ingredient], link]) 
+				graph[ingredient].links.push(link)
+			}
+			
+			node.on('mouseover', function() {
+				for (l of graph[this.textContent].ingredients)
+				{
+					l[1].attr('class', 'linkHover').moveToFront()
+				}
+			})
+			
+			node.on('mouseout', function() {
+				for (l of graph[this.textContent].ingredients)
+				{
+					l[1].attr('class', 'link').moveToBack()
+				}
+			})
 
-		radCake += radiansCake
-		count++
+			rad += deltaRad
+			count++
+		}
 	}
 }
 
