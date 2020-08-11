@@ -37,8 +37,8 @@ function drawIngre(data)
 	var ingreX
 	var ingreY
 
-	var ingreDim = 5
-	var ingreDist = w/88
+	var ingreDim = 8
+	var ingreDist = (w<h ? w : h)/50
 
 	var radCake = 0
 
@@ -104,15 +104,18 @@ function drawIngre(data)
 					l[1].attr('class', 'linkHover').moveToFront()
 					l[0].node.attr('class', 'recipeHover').moveToFront()
 				}
-				graph[this.attributes.name.nodeValue].node.attr('class', 'ingredientHover').moveToFront()
 				
-				node.attr('r', 25)
+				node.attr('class', 'ingredientHover')
+					.attr('r', ingreDim*4)
+					
+				node.moveToFront()
+				
 				var img = svg.append('image')
 					.attr('href', 'https://www.themealdb.com/images/ingredients/' + this.attributes.name.nodeValue + '.png')
-					.attr('y', node.attr('cy') - 12.5)
-					.attr('x', node.attr('cx') - 12.5)
-					.attr('width', 25)
-					.attr('height', 25)
+					.attr('y', node.attr('cy') - ingreDim*2)
+					.attr('x', node.attr('cx') - ingreDim*2)
+					.attr('width', ingreDim*4)
+					.attr('height', ingreDim*4)
 					.attr('id', 'delete')
 					.style('pointer-events', 'none')
 					.attr('name', this.attributes.name.nodeValue)
@@ -135,12 +138,18 @@ function drawIngre(data)
 				}
 			})
 			
+			node.on('click', function() {
+				ingredientPopup(this.attributes.name.nodeValue)
+			})
+			
 			radCake += radiansCake
 			ing ++
 			i ++
 		}
 		
-		rCake += h/85
+		rCake += (w<h ? w : h)/45
+		count = ~~(2 * Math.PI * rCake / ingreDist)
+		radiansCake = ( 2 * Math.PI ) / count
 
 		if (cool == 1){
 			cool = 2
@@ -305,13 +314,24 @@ function foodPopup(food)
 			}
 		})
 		
+		svg.append('image')
+			.attr('href', 'images/' + graph[food].nationality + '.png')
+			.attr('y', imgh/20)
+			.attr('x', 0)
+			.attr('width', imgw/1.8)
+			.attr('height', imgh/1.8)
+			.attr('transform', 'rotate(-5)')
+		
 		if (imgOk) 
 		{
 			svg.append("text")
-				.attr("y", imgy + imgh + 20)
-				.attr("x", imgx)
+				.attr("y", imgh/(1.8*2))
+				.attr("x", imgw/1.8 + 20)
 				.attr("text-anchor", "start")
+				.attr("font-size", "150%")
+				.style('font-weight', 'bold')
 				.text(graph[food].fullName)
+				.moveToFront()
 		} else 
 		{
 			var f = svg.append("text")
@@ -325,14 +345,6 @@ function foodPopup(food)
 			imgh = f.height
 			imgw = f.width
 		}
-		
-		svg.append('image')
-			.attr('href', 'images/' + graph[food].nationality + '.png')
-			.attr('y', imgh/20)
-			.attr('x', 0)
-			.attr('width', imgw/1.5)
-			.attr('height', imgh/1.5)
-			.attr('transform', 'rotate(-5)')
 			
 		var y = h/(2*graph[food].ingredients.length + 2)
 
@@ -365,7 +377,7 @@ function foodPopup(food)
 			i.on('click', onclick)
 				
 			link = svg.append('path')
-				.datum([[imgw, imgy + imgh/2], [x - n.node().getBBox().width, y - n.node().getBBox().height/4]])
+				.datum([[imgw + 3, imgy + imgh/2], [x - n.node().getBBox().width - 10, y - n.node().getBBox().height/4]])
 				.attr('d', lineGenerator)
 				.attr('class', 'linkPopup')
 				
