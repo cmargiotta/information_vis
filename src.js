@@ -31,8 +31,7 @@ function drawIngre(data)
 	ingredientNodes = {}
 	graph = {}
 	
-	var	radiansCake
-	var rCake
+	var rCake = 0
 
 	var ingreX
 	var ingreY
@@ -42,10 +41,12 @@ function drawIngre(data)
 
 	var radCake = 0
 
-	var count
 	var i
-	var ing
-	var cool
+	var ing = 0
+	var cool = 0
+	
+	var count = ~~(2 * Math.PI * rCake / ingreDist)
+	var radiansCake = ( 2 * Math.PI ) / count
 	
 	var svg = d3
 		.selectAll("body")
@@ -53,20 +54,6 @@ function drawIngre(data)
 		.attr("width", w)
 		.attr("height", h)
 		.attr("id", "graph")
-
-	svg
-		.append('image')
-	    .attr('xlink:href', 'https://static.wixstatic.com/media/d7f3d4_dec975d469874505976cbd20c3da41ea.png')
-	    .attr('width', 50)
-	    .attr('height', 50)
-	    .attr('x',cakeX -25)
-	    .attr('y',cakeY -25)
-
-	rCake = 60
-	count = ~~(2 * Math.PI * rCake / ingreDist)
-	ing = 0
-	radiansCake = ( 2 * Math.PI ) / count
-	cool = 0
 	
 	while (ing < data.length) {
 		radCake = 0
@@ -150,13 +137,8 @@ function drawIngre(data)
 		rCake += (w<h ? w : h)/45
 		count = ~~(2 * Math.PI * rCake / ingreDist)
 		radiansCake = ( 2 * Math.PI ) / count
-
-		if (cool == 1){
-			cool = 2
-		}
-		else if (cool == 2){
-			cool = 0
-		}
+		
+		cool = (cool == 1) ? 2 : 0
 	}
 }
 
@@ -200,7 +182,8 @@ function drawFood(data, len)
 				.attr("text-anchor", foodX >= cakeX ? "start" : "end")
 				.attr("transform", "rotate(" + (((foodX <= cakeX ? Math.PI : 0) + rad) * 180/Math.PI) + ',' + foodX + ',' + foodY + ")")
 				.attr("font-size", "75%")
-				.attr("class", "recipe")
+				.attr("class", "recipe " + c.key)
+				.attr("dominant-baseline", "middle")
 				.text(name)
 			
 			graph[name] = {}		
@@ -273,6 +256,8 @@ function buildPopup(size)
 		.attr('class', 'helper')
 	
 	var body = popup.append('div')
+		.style('width', (size*100) + '%')
+		.style('height', (size*100) + '%')
 	
 	body.append('div')
 		.attr('class', 'popupCloseButton')
@@ -299,7 +284,7 @@ function foodPopup(food)
 		var imgh = imgw
 		var imgx = 0
 		var imgy = h/4 - h/11
-		var recipeImgW = (w > h ? w : h)/40
+		var recipeImgW = h/(graph[food].ingredients.length + 15)
 		
 		var imgOk = false
 		JSON.parse(this.response, (k, v) => {
@@ -324,14 +309,19 @@ function foodPopup(food)
 		
 		if (imgOk) 
 		{
-			svg.append("text")
+			var title = svg.append("text")
 				.attr("y", imgh/(1.8*2))
-				.attr("x", imgw/1.8 + 20)
+				.attr("x", imgw/1.8 + 10)
 				.attr("text-anchor", "start")
 				.attr("font-size", "150%")
 				.style('font-weight', 'bold')
+				.attr("dominant-baseline", "middle")
 				.text(graph[food].fullName)
 				.moveToFront()
+			
+			if (title.node().getBBox().width > w/4)
+				title.attr('font-size', (((w/2.8)/title.node().getBBox().width) * 100) + '%')
+			
 		} else 
 		{
 			var f = svg.append("text")
@@ -351,11 +341,11 @@ function foodPopup(food)
 		for (l of graph[food].ingredients)
 		{
 			var name = l[0].node.node().attributes.name.nodeValue
-			var x = w/2 - recipeImgW*1.3
+			var x = w/2.5 - recipeImgW*1.3
 			var n = svg.append("text")
 				.attr("y", y)
 				.attr("x", x)
-				.attr("text-anchor", "end")
+				.attr("text-anchor", "start")
 				.text(name)
 				.attr('name', name)
 				.attr('class', 'clickable')
@@ -363,21 +353,23 @@ function foodPopup(food)
 			var i = svg.append('image')
 				.attr('href', 'https://www.themealdb.com/images/ingredients/' + name + '.png')
 				.attr('y', y - recipeImgW/2)
-				.attr('x', w/2 - recipeImgW)
+				.attr('x', x + n.node().getBBox().width + 5)
 				.attr('width', recipeImgW)
 				.attr('height', recipeImgW)
 				.attr('name', name)
 				.attr('class', 'clickable')
 				
 			function onclick() {
-				ingredientPopup(this.attributes.name.nodeValue)
+				var name = this.attributes.name.nodeValue
+				
+				ingredientPopup(name)
 			}
 			
 			n.on('click', onclick)
 			i.on('click', onclick)
 				
 			link = svg.append('path')
-				.datum([[imgw + 3, imgy + imgh/2], [x - n.node().getBBox().width - 10, y - n.node().getBBox().height/4]])
+				.datum([[imgw + 3, imgy + imgh/2], [x - 10, y - n.node().getBBox().height/4]])
 				.attr('d', lineGenerator)
 				.attr('class', 'linkPopup')
 				
@@ -397,8 +389,8 @@ function ingredientPopup(ingredient)
 	
 	var imgw = (w > h ? w : h)/9
 	var imgh = imgw
-	var imgx = divw/2 - imgw*1.5
-	var imgy = divh/2 - imgh/4
+	var imgx = divw/2 - imgw/2
+	var imgy = divh/2 - imgh/2
 	
 	var img = svg.append('image')
 		.attr('href', 'https://www.themealdb.com/images/ingredients/' + ingredient + '.png')
@@ -407,8 +399,6 @@ function ingredientPopup(ingredient)
 		.attr('width', imgw)
 		.attr('height', imgh)
 		
-	console.log(img.node().getBBox())
-	    
 	var lbl = svg.append("text")
 		.attr("y", 20)
 		.attr("x", imgx + imgw/4)
@@ -428,7 +418,7 @@ function ingredientPopup(ingredient)
 		
 		if (i%2 == 0)
 		{
-			var x = w/2
+			var x = divw
 			var n = svg.append("text")
 				.attr("y", y)
 				.attr("x", x)
@@ -436,19 +426,18 @@ function ingredientPopup(ingredient)
 				.attr('class', 'clickable')
 				.text(name)
 				.on('click', function() {
-					foodPopup(this.textContent)
+					var name = this.textContent
+					console.log(name)
+					if (name.length >= 23) 
+						name = name.substring(0,20) + '...'
+					
+					foodPopup(name)
 				})
 				.node().getBBox()
 				
 			var points
 			
-			if (y != imgy)
-			{
-				points = [[imgw/2 + imgx, imgy + imgh/2], [imgx + imgw, y], [x - n.width, y - n.height/4]]
-			} else
-			{
-				points = [[imgw/2 + imgx, imgy + imgh/2], [x - n.width, y - n.height/4]]
-			}
+			points = [[imgw/2 + imgx, imgy + imgh/2], [imgx + imgw, y], [x - n.width, y - n.height/4]]
 			
 			link = svg.append('path')
 				.datum(points)
@@ -464,7 +453,12 @@ function ingredientPopup(ingredient)
 				.attr('class', 'clickable')
 				.text(name)
 				.on('click', function() {
-					foodPopup(this.textContent)
+					var name = this.textContent
+					console.log(name)
+					if (name.length >= 23) 
+						name = name.substring(0,20) + '...'
+					
+					foodPopup(name)
 				})
 				.node().getBBox()
 				
