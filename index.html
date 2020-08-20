@@ -19,8 +19,15 @@
 						drawFood(groupedData, Object.keys(dataFood).length);				
 					});
 				}); 
+
+				d3.json("meal-db/areas.json").then(function(dataAreas) {
+					drawSelectNationalityButtons(dataAreas);
+				})
 			}
 		</script>
+
+		<!-- <button type="button" onclick="selectNationality('Japanese')">Click Me!</button> -->
+		<div id="areasButton"></div>
 	</head>
 	
 	<body onresize="onres()">

@@ -78,7 +78,7 @@ function drawIngre(data)
 			    .attr("cy", ingreY)
 			    .attr("r", ingreDim)
 				.attr('name', data[ing])
-			
+
 			ingredientNodes[data[ing]] = [ingreX, ingreY]
 			graph[data[ing]] = {}
 			graph[data[ing]].node = node
@@ -142,6 +142,48 @@ function drawIngre(data)
 	}
 }
 
+function drawSelectNationalityButtons(areas)
+{
+	areas.unshift('All')
+
+	var dropdownButton = d3.select("#areasButton")
+						   .append('select')
+
+	dropdownButton.selectAll('myOptions')
+ 				  .data(areas)
+				  .enter()
+				  .append('option')
+				  .text(function (d) { return d; })
+				  .attr("value", function (d) { return d; })
+
+	dropdownButton.on("change", function (d) {
+		selectNationality(d3.select(this).property("value"))
+	})
+
+}
+
+function selectNationality(nationality)
+{
+	if (nationality == "All")
+	{
+		d3.selectAll("text")
+		  .transition()
+		  .duration(1000)
+		  .attr('opacity', '1')
+	} else
+	{
+		d3.selectAll("text")
+		  .transition()
+		  .duration(1000)
+		  .attr('opacity', '0.1')
+
+		d3.selectAll("text." + nationality)
+		  .transition()
+		  .duration(1000)
+		  .attr('opacity', '1')
+	}
+}
+
 function drawFood(data, len)
 {		
 	var	radiansCake
@@ -185,6 +227,8 @@ function drawFood(data, len)
 				.attr("class", "recipe " + c.key)
 				.attr("dominant-baseline", "middle")
 				.text(name)
+
+			console.log(node.attr("class"))
 			
 			graph[name] = {}		
 			graph[name].fullName = f.name
