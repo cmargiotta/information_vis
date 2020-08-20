@@ -78,7 +78,7 @@ function drawIngre(data)
 			    .attr("cy", ingreY)
 			    .attr("r", ingreDim)
 				.attr('name', data[ing])
-
+		
 			ingredientNodes[data[ing]] = [ingreX, ingreY]
 			graph[data[ing]] = {}
 			graph[data[ing]].node = node
@@ -146,41 +146,75 @@ function drawSelectNationalityButtons(areas)
 {
 	areas.unshift('All')
 
-	var dropdownButton = d3.select("#areasButton")
-						   .append('select')
+	// var dropdownButton = d3.select("#areasButton")
+	// 					   .append('select')
 
-	dropdownButton.selectAll('myOptions')
- 				  .data(areas)
+	// dropdownButton.selectAll('myOptions')
+ 	// 			  .data(areas)
+	// 			  .enter()
+	// 			  .append('option')
+	// 			  .text(function (d) { return d; })
+	// 			  .attr("value", function (d) { return d; })
+
+	// dropdownButton.on("change", function (d) {
+	// 	selectNationality(d3.select(this).property("value"))
+	// })
+	// selectNationality("All")
+	var checkboxButtons = d3.select("#areasButton")
+						   .append('div')
+
+	checkboxButtons.selectAll('myOptions')
+				  .data(areas)
 				  .enter()
-				  .append('option')
-				  .text(function (d) { return d; })
-				  .attr("value", function (d) { return d; })
+				  .append('label')
+	 			  .attr('for', function (d, i) {return 'a'+i;})
+	 			  .text(function (d) { return d; })
+				  .attr('id', function(d,i) {return 'l'+i;})
+				  .append('input')
+				  .attr('type', 'checkbox')
+				  .attr('id', function(d, i) {return 'a'+i;})
+				  .attr('value', function(d) {return d;})
+				  .on('change', function (d) {
+					  selectNationality(d3.select(this).property("value"),
+										d3.select(this).property("checked"))
+				  })
 
-	dropdownButton.on("change", function (d) {
-		selectNationality(d3.select(this).property("value"))
-	})
-
+	d3.selectAll('input').property('checked', true).dispatch('change')
 }
 
-function selectNationality(nationality)
+function selectNationality(nationality, checked)
 {
 	if (nationality == "All")
 	{
-		d3.selectAll("text")
-		  .transition()
-		  .duration(1000)
-		  .attr('opacity', '1')
+		if (checked) {
+			d3.selectAll('input')
+			  .property('checked', true)
+			  .dispatch('change')
+			  .transition()
+			  .duration(1000)
+		} else
+		{
+			d3.selectAll('input')
+			  .property('checked', false)
+			  .dispatch('change')
+			  .transition()
+			  .duration(1000)
+		}
 	} else
 	{
-		d3.selectAll("text")
-		  .transition()
-		  .duration(1000)
-		  .attr('opacity', '0.1')
-
-		d3.selectAll("text." + nationality)
-		  .transition()
-		  .duration(1000)
-		  .attr('opacity', '1')
+		if (checked)
+		{
+			d3.selectAll("text."+nationality)
+			  .transition()
+			  .duration(1000)
+			  .attr('opacity', '1')
+		} else
+		{
+			d3.selectAll("text."+nationality)
+			  .transition()
+			  .duration(1000)
+			  .attr('opacity', '0.1')
+		}
 	}
 }
 
