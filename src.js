@@ -144,6 +144,7 @@ function drawIngre(data)
 
 function drawSelectNationalityButtons(areas)
 {
+	d3.select("#areasButton").select('div').remove()
 	areas.unshift('All')
 
 	// var dropdownButton = d3.select("#areasButton")
@@ -164,22 +165,27 @@ function drawSelectNationalityButtons(areas)
 						   .append('div')
 
 	checkboxButtons.selectAll('myOptions')
-				  .data(areas)
-				  .enter()
-				  .append('label')
-	 			  .attr('for', function (d, i) {return 'a'+i;})
-	 			  .text(function (d) { return d; })
-				  .attr('id', function(d,i) {return 'l'+i;})
-				  .append('input')
-				  .attr('type', 'checkbox')
-				  .attr('id', function(d, i) {return 'a'+i;})
-				  .attr('value', function(d) {return d;})
-				  .on('change', function (d) {
-					  selectNationality(d3.select(this).property("value"),
-										d3.select(this).property("checked"))
-				  })
+		.data(areas)
+		.enter()
+		.append('button')
+		.attr('class', 'nationalityButtonPressed')
+		.text(function (d) { return d; })
+		.attr('id', function(d, i) {return 'a'+i;})
+		.attr('value', function(d) {return d;})
+		.on('click', function (d) {
+			checked = false
+			if (d3.select(this).attr('class') == 'nationalityButton')
+			{
+				d3.select(this).attr('class', 'nationalityButtonPressed')
+				checked = true
+			}
+			else
+				d3.select(this).attr('class', 'nationalityButton')
 
-	d3.selectAll('input').property('checked', true).dispatch('change')
+			selectNationality(d3.select(this).property("value"),
+								checked)
+		})
+
 }
 
 function selectNationality(nationality, checked)
@@ -192,6 +198,11 @@ function selectNationality(nationality, checked)
 			  .dispatch('change')
 			  .transition()
 			  .duration(1000)
+			  
+			d3.selectAll(".recipe")
+			  .transition()
+			  .duration(1000)
+			  .style('opacity', '1')
 		} else
 		{
 			d3.selectAll('input')
@@ -199,21 +210,26 @@ function selectNationality(nationality, checked)
 			  .dispatch('change')
 			  .transition()
 			  .duration(1000)
+			  
+			d3.selectAll(".recipe")
+			  .transition()
+			  .duration(1000)
+			  .style('opacity', '0.1')
 		}
 	} else
 	{
 		if (checked)
-		{
-			d3.selectAll("text."+nationality)
+		{			
+			d3.selectAll("."+nationality)
 			  .transition()
 			  .duration(1000)
-			  .attr('opacity', '1')
+			  .style('opacity', '1')
 		} else
 		{
-			d3.selectAll("text."+nationality)
+			d3.selectAll("."+nationality)
 			  .transition()
 			  .duration(1000)
-			  .attr('opacity', '0.1')
+			  .style('opacity', '0.1')
 		}
 	}
 }
@@ -259,11 +275,10 @@ function drawFood(data, len)
 				.attr("transform", "rotate(" + (((foodX <= cakeX ? Math.PI : 0) + rad) * 180/Math.PI) + ',' + foodX + ',' + foodY + ")")
 				.attr("font-size", "75%")
 				.attr("class", "recipe " + c.key)
+				.attr("nationality", c.key)
 				.attr("dominant-baseline", "middle")
 				.text(name)
 
-			console.log(node.attr("class"))
-			
 			graph[name] = {}		
 			graph[name].fullName = f.name
 			graph[name].node = node
@@ -297,7 +312,8 @@ function drawFood(data, len)
 			})
 			
 			node.on('mouseout', function() {
-				graph[this.textContent].node.attr('class', 'recipe')
+				graph[this.textContent].node.attr('class', 'recipe ' + 
+					graph[this.textContent].node.attr('nationality'))
 				for (l of graph[this.textContent].ingredients)
 				{
 					l[1].attr('class', 'link').moveToBack()
@@ -505,7 +521,7 @@ function ingredientPopup(ingredient)
 				.text(name)
 				.on('click', function() {
 					var name = this.textContent
-					console.log(name)
+
 					if (name.length >= 23) 
 						name = name.substring(0,20) + '...'
 					
@@ -532,7 +548,7 @@ function ingredientPopup(ingredient)
 				.text(name)
 				.on('click', function() {
 					var name = this.textContent
-					console.log(name)
+
 					if (name.length >= 23) 
 						name = name.substring(0,20) + '...'
 					
