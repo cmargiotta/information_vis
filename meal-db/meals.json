@@ -39,21 +39,6 @@
 		"name": "Dal fry",
 		"area": "Indian"
 	},
-	"Garides Saganaki": {
-		"category": "Seafood",
-		"ingredients": [
-			"Prawns",
-			"Olive Oil",
-			"Onion",
-			"Parsley",
-			"White Wine",
-			"Tomato",
-			"Garlic",
-			"Feta"
-		],
-		"name": "Garides Saganaki",
-		"area": "Greek"
-	},
 	"Turkey Meatloaf": {
 		"category": "Miscellaneous",
 		"ingredients": [

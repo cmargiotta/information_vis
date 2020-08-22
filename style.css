@@ -109,7 +109,9 @@ body {
 	cursor: pointer;
 }
 
+.nationalityButton {
+}
 
 .nationalityButtonPressed {
-	background-color: #ccc;
+	opacity: 1;
 }

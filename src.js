@@ -144,93 +144,85 @@ function drawIngre(data)
 
 function drawSelectNationalityButtons(areas)
 {
-	d3.select("#areasButton").select('div').remove()
-	areas.unshift('All')
+	var svg = d3
+		.select("#graph")
+	
+	var rad = 0
+	var freeAngle = 200
+	var rCake = (w<h ? w : h)/1.5
+	var deltaRad = ((360-freeAngle)*Math.PI/180)/areas.length
+	
+	for (area of areas)
+	{
+		x = cakeX + rCake * Math.cos( rad )
+		y = cakeY + rCake * Math.sin( rad )
+		
+		svg.append('image')
+			.attr('class', 'nationalityButton')
+			.attr('nationality', area)
+			.attr('href', "images/" + area + ".png")
+			.attr('width', w/22)
+			.attr('height', w/22)
+			.attr('x', x - w/44)
+			.attr('y', y - w/44)
+			.on('click', function () {
+				checked = false
+				if (d3.select(this).attr('class') == 'nationalityButton')
+				{
+					d3.selectAll('.nationalityButtonPressed').attr('class', 'nationalityButton')
+					d3.select(this).attr('class', 'nationalityButtonPressed')
+					checked = true
+				}
+				else
+					d3.select(this).attr('class', 'nationalityButton')
 
-	// var dropdownButton = d3.select("#areasButton")
-	// 					   .append('select')
+				selectNationality(d3.select(this).attr("nationality"),
+									checked)
+			})
 
-	// dropdownButton.selectAll('myOptions')
- 	// 			  .data(areas)
-	// 			  .enter()
-	// 			  .append('option')
-	// 			  .text(function (d) { return d; })
-	// 			  .attr("value", function (d) { return d; })
-
-	// dropdownButton.on("change", function (d) {
-	// 	selectNationality(d3.select(this).property("value"))
-	// })
-	// selectNationality("All")
-	var checkboxButtons = d3.select("#areasButton")
-						   .append('div')
-
-	checkboxButtons.selectAll('myOptions')
-		.data(areas)
-		.enter()
-		.append('button')
-		.attr('class', 'nationalityButtonPressed')
-		.text(function (d) { return d; })
-		.attr('id', function(d, i) {return 'a'+i;})
-		.attr('value', function(d) {return d;})
-		.on('click', function (d) {
-			checked = false
-			if (d3.select(this).attr('class') == 'nationalityButton')
-			{
-				d3.select(this).attr('class', 'nationalityButtonPressed')
-				checked = true
-			}
-			else
-				d3.select(this).attr('class', 'nationalityButton')
-
-			selectNationality(d3.select(this).property("value"),
-								checked)
-		})
-
+		
+		rad += deltaRad
+		if (((rad*180/Math.PI >= (360 - freeAngle)/4) && (rad*180/Math.PI <= (360 - freeAngle)/4 + freeAngle/2)) || 
+			((rad*180/Math.PI >= (360 - freeAngle/2 - (360-freeAngle)/4)) && (rad*180/Math.PI <= (360-freeAngle/2 - (360-freeAngle)/4) + freeAngle/2)))
+			rad += freeAngle/2*Math.PI/180
+	}
 }
 
 function selectNationality(nationality, checked)
 {
-	if (nationality == "All")
+	if (checked)
 	{
-		if (checked) {
-			d3.selectAll('input')
-			  .property('checked', true)
-			  .dispatch('change')
-			  .transition()
-			  .duration(1000)
-			  
-			d3.selectAll(".recipe")
-			  .transition()
-			  .duration(1000)
-			  .style('opacity', '1')
-		} else
-		{
-			d3.selectAll('input')
-			  .property('checked', false)
-			  .dispatch('change')
-			  .transition()
-			  .duration(1000)
-			  
-			d3.selectAll(".recipe")
-			  .transition()
-			  .duration(1000)
-			  .style('opacity', '0.1')
-		}
+		d3.selectAll(".recipe")
+			.transition()
+			.style('opacity', '0.1')
+			.duration(1000)
+				
+		d3.selectAll("."+nationality)
+			.transition()
+			.style('opacity', '1')
+			.duration(1000)
+		  
+		d3.selectAll('.nationalityButton')
+			.transition()
+			.style('opacity', '0.4')
+			.duration(1000)
+			
+		d3.selectAll('.nationalityButtonPressed')
+			.transition()
+			.style('opacity', '1')
+			.duration(1000)
+		  
 	} else
 	{
-		if (checked)
-		{			
-			d3.selectAll("."+nationality)
-			  .transition()
-			  .duration(1000)
-			  .style('opacity', '1')
-		} else
-		{
-			d3.selectAll("."+nationality)
-			  .transition()
-			  .duration(1000)
-			  .style('opacity', '0.1')
-		}
+		d3.selectAll(".recipe")
+		  .transition()
+		  .duration(1000)
+		  .style('opacity', '1')
+		  
+		d3.selectAll('.nationalityButton')
+			.transition()
+			.style('opacity', '1')
+			.duration(1000)
 	}
 }
 
@@ -295,7 +287,7 @@ function drawFood(data, len)
 				link = svg.append('path')
 					.datum([[foodX, foodY], ingredientNodes[ingredient]])
 					.attr('d', lineGenerator)
-					.attr('class', 'link')
+					.attr('class', 'link ')
 					.moveToBack()
 					
 				graph[name].ingredients.push([graph[ingredient], link]) 
