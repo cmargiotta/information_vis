@@ -121,7 +121,7 @@ function drawIngre(data)
 				for (l of graph[this.attributes.name.nodeValue].links)
 				{
 					l[1].attr('class', 'link').moveToBack()
-					l[0].node.attr('class', 'recipe').moveToBack()
+					l[0].node.attr('class', 'recipe ' + l[0].node.attr('nationality')).moveToBack()
 				}
 			})
 			
@@ -487,11 +487,13 @@ function ingredientPopup(ingredient)
 		
 	var lbl = svg.append("text")
 		.attr("y", 20)
-		.attr("x", imgx + imgw/4)
+		.attr("x", 0)
 		.attr("text-anchor", "center")
 		.attr("font-size", "150%")
 		.style('font-weight', 'bold')
-		.text(ingredient)		
+		.text(ingredient)	
+	
+	lbl.attr("x", imgx + imgw/2 - lbl.node().getBBox().width/2)
 		
 	var dy =  2*divh/(graph[ingredient].links.length + 2)
 	var y = dy
