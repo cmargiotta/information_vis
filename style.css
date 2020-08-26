@@ -13,6 +13,7 @@ body {
 .ingredientHidden {
 	opacity: 0.1;
 	pointer-events: none;
+	transition: 0.3s;
 }
 
 .ingredientHover {

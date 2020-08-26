@@ -89,7 +89,7 @@ function drawIngre(data)
 				var node = graph[this.attributes.name.nodeValue].node
 				for (l of graph[this.attributes.name.nodeValue].links)
 				{
-					if (l[0].node.attr('class') != 'recipeHidden')
+					if (!l[0].node.attr('class').includes('recipeHidden'))
 					{
 						l[1].attr('class', 'linkHover').moveToFront()
 						l[0].node.attr('class', 'recipeHover').moveToFront()
@@ -124,7 +124,7 @@ function drawIngre(data)
 					
 				for (l of graph[this.attributes.name.nodeValue].links)
 				{
-					if (l[0].node.attr('class') != 'recipeHidden')
+					if (!l[0].node.attr('class').includes('recipeHidden'))
 					{
 						l[1].attr('class', 'link').moveToBack()
 						l[0].node.attr('class', 'recipe ' + l[0].node.attr('nationality')).moveToBack()
@@ -201,31 +201,36 @@ function selectNationality(nationality, checked)
 	{
 		d3.selectAll(".recipe")
 			.transition()
-			.attr('class', 'recipeHidden')
-			.duration(1000)
+			.attr('class', function() {return 'recipeHidden ' + d3.select(this).attr('nationality');})
+			.duration(300)
 				
 		d3.selectAll("."+nationality)
 			.transition()
 			.attr('class', 'recipe ' + nationality)
-			.duration(1000)
+			.duration(300)
 			
 		d3.selectAll(".link")
+			.transition()
+			.duration(300)
 			.attr('class', function() {return 'linkHidden ' + d3.select(this).attr('nationality') + 'l';})
 			
 		d3.selectAll("."+nationality + 'l')
+			.transition()
+			.duration(300)
 			.attr('class', 'link ' + nationality + 'l')
 		  
 		d3.selectAll('.nationalityButton')
 			.transition()
-			.style('opacity', '0.4')
-			.duration(1000)
+			.style('opacity', '0.2')
+			.duration(300)
 			
 		d3.selectAll('.nationalityButtonPressed')
 			.transition()
 			.style('opacity', '1')
-			.duration(1000)
+			.duration(300)
 			
-		d3.selectAll('.ingredient').attr('class', 'ingredientHidden')
+		d3.selectAll('.ingredient')
+			.attr('class', 'ingredientHidden')
 		
 		for (i of ingredients_nationality[nationality])
 		{
@@ -236,18 +241,21 @@ function selectNationality(nationality, checked)
 	{
 		d3.selectAll(".recipeHidden")
 		  .transition()
-		  .duration(1000)
+		  .duration(300)
 		  .attr('class', function() {return 'recipe ' + d3.select(this).attr('nationality');})
 		  
 		d3.selectAll('.nationalityButton')
 			.transition()
 			.style('opacity', '1')
-			.duration(1000)
+			.duration(300)
 			
 		d3.selectAll(".linkHidden")
+			.transition()
+			.duration(300)
 			.attr('class', function() {return 'link ' + d3.select(this).attr('nationality') + 'l';})
 			
-		d3.selectAll('.ingredientHidden').attr('class', 'ingredient')
+		d3.selectAll('.ingredientHidden')
+			.attr('class', 'ingredient')
 	}
 }
 
