@@ -10,6 +10,11 @@ body {
 	transition: 0.3s;
 }
 
+.ingredientHidden {
+	opacity: 0.1;
+	pointer-events: none;
+}
+
 .ingredientHover {
 	fill: #ffcccc;
 	stroke: #ff6666;
@@ -30,6 +35,13 @@ body {
     opacity: 0.1;
 }
 
+.linkHidden {
+	fill: none;
+    stroke: black;
+    stroke-width: 1;
+    opacity: 0.01;
+}
+
 .linkPopup {
     fill: none;
     stroke: black;
@@ -46,6 +58,12 @@ body {
 
 .recipe {
 	cursor: default;
+}
+
+.recipeHidden {
+	cursor: default;
+	pointer-events: none;
+	opacity: 0.1;
 }
 
 #popupdiv {

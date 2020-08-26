@@ -1,5 +1,6 @@
 var w, h, cakeX, cakeY, ingredientNodes, graph;
 var lineGenerator = d3.line().curve(d3.curveMonotoneX);
+var ingredients_nationality = {};
 
 const border = 150
 
@@ -88,8 +89,11 @@ function drawIngre(data)
 				var node = graph[this.attributes.name.nodeValue].node
 				for (l of graph[this.attributes.name.nodeValue].links)
 				{
-					l[1].attr('class', 'linkHover').moveToFront()
-					l[0].node.attr('class', 'recipeHover').moveToFront()
+					if (l[0].node.attr('class') != 'recipeHidden')
+					{
+						l[1].attr('class', 'linkHover').moveToFront()
+						l[0].node.attr('class', 'recipeHover').moveToFront()
+					}
 				}
 				
 				node.attr('class', 'ingredientHover')
@@ -120,8 +124,11 @@ function drawIngre(data)
 					
 				for (l of graph[this.attributes.name.nodeValue].links)
 				{
-					l[1].attr('class', 'link').moveToBack()
-					l[0].node.attr('class', 'recipe ' + l[0].node.attr('nationality')).moveToBack()
+					if (l[0].node.attr('class') != 'recipeHidden')
+					{
+						l[1].attr('class', 'link').moveToBack()
+						l[0].node.attr('class', 'recipe ' + l[0].node.attr('nationality')).moveToBack()
+					}
 				}
 			})
 			
@@ -194,13 +201,19 @@ function selectNationality(nationality, checked)
 	{
 		d3.selectAll(".recipe")
 			.transition()
-			.style('opacity', '0.1')
+			.attr('class', 'recipeHidden')
 			.duration(1000)
 				
 		d3.selectAll("."+nationality)
 			.transition()
-			.style('opacity', '1')
+			.attr('class', 'recipe ' + nationality)
 			.duration(1000)
+			
+		d3.selectAll(".link")
+			.attr('class', function() {return 'linkHidden ' + d3.select(this).attr('nationality') + 'l';})
+			
+		d3.selectAll("."+nationality + 'l')
+			.attr('class', 'link ' + nationality + 'l')
 		  
 		d3.selectAll('.nationalityButton')
 			.transition()
@@ -211,18 +224,30 @@ function selectNationality(nationality, checked)
 			.transition()
 			.style('opacity', '1')
 			.duration(1000)
+			
+		d3.selectAll('.ingredient').attr('class', 'ingredientHidden')
+		
+		for (i of ingredients_nationality[nationality])
+		{
+			i.node.attr('class', 'ingredient')
+		}
 		  
 	} else
 	{
-		d3.selectAll(".recipe")
+		d3.selectAll(".recipeHidden")
 		  .transition()
 		  .duration(1000)
-		  .style('opacity', '1')
+		  .attr('class', function() {return 'recipe ' + d3.select(this).attr('nationality');})
 		  
 		d3.selectAll('.nationalityButton')
 			.transition()
 			.style('opacity', '1')
 			.duration(1000)
+			
+		d3.selectAll(".linkHidden")
+			.attr('class', function() {return 'link ' + d3.select(this).attr('nationality') + 'l';})
+			
+		d3.selectAll('.ingredientHidden').attr('class', 'ingredient')
 	}
 }
 
@@ -287,10 +312,17 @@ function drawFood(data, len)
 				link = svg.append('path')
 					.datum([[foodX, foodY], ingredientNodes[ingredient]])
 					.attr('d', lineGenerator)
-					.attr('class', 'link ')
+					.attr('class', 'link ' + c.key + 'l')
+					.attr('nationality', c.key)
 					.moveToBack()
 					
 				graph[name].ingredients.push([graph[ingredient], link]) 
+				
+				if (ingredients_nationality[c.key] === undefined)
+					ingredients_nationality[c.key] = []
+				
+				ingredients_nationality[c.key].push(graph[ingredient])
+				
 				graph[ingredient].links.push([graph[name], link])
 			}
 			
@@ -308,7 +340,7 @@ function drawFood(data, len)
 					graph[this.textContent].node.attr('nationality'))
 				for (l of graph[this.textContent].ingredients)
 				{
-					l[1].attr('class', 'link').moveToBack()
+					l[1].attr('class', 'link ' + l[1].attr('nationality') + 'l').moveToBack()
 					l[0].node.attr('class', 'ingredient').moveToFront()
 				}
 			})
